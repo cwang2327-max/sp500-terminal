@@ -1592,8 +1592,13 @@ table.src-table tbody tr:hover { background: var(--panel); }
   // ======================================================================
   var FORECAST_ERROR_CAP = 15;
 
-  var capLabelPlugin = {
-    id: "capLabels",
+  // Only the single largest positive and single largest negative reading get an
+  // on-chart label -- dense stretches (2020 negative run, 2021 positive run) used
+  // to label every capped bar and clump into an unreadable overlap. Every other
+  // bar's true (uncapped) value is still available via tooltip/hover: seriesRowsForChart
+  // reads d.data[idx].trueVal in preference to the clamped y, so nothing is lost.
+  var extremeLabelPlugin = {
+    id: "extremeLabels",
     afterDatasetsDraw: function (c) {
       var meta = c.getDatasetMeta(0);
       if (!meta) return;
@@ -1603,7 +1608,7 @@ table.src-table tbody tr:hover { background: var(--panel); }
       g.textAlign = "center";
       meta.data.forEach(function (bar, i) {
         var d = data[i];
-        if (!d || !d.capped) return;
+        if (!d || !d.labeled) return;
         var y = d.y >= 0 ? c.chartArea.top + 10 : c.chartArea.bottom - 4;
         g.fillStyle = d.y >= 0 ? "#3fb950" : "#f85149";
         g.fillText((d.trueVal >= 0 ? "+" : "") + d.trueVal.toFixed(0) + "%", bar.x, y);
@@ -1619,12 +1624,23 @@ table.src-table tbody tr:hover { background: var(--panel); }
       var clamped = Math.max(-FORECAST_ERROR_CAP, Math.min(FORECAST_ERROR_CAP, trueVal));
       return { x: toTs(v.report_date), y: clamped, trueVal: trueVal, capped: Math.abs(trueVal) > FORECAST_ERROR_CAP };
     });
+    var maxIdx = -1, minIdx = -1;
+    bars.forEach(function (b, i) {
+      if (maxIdx === -1 || b.trueVal > bars[maxIdx].trueVal) maxIdx = i;
+      if (minIdx === -1 || b.trueVal < bars[minIdx].trueVal) minIdx = i;
+    });
+    if (maxIdx !== -1) bars[maxIdx].labeled = true;
+    if (minIdx !== -1) bars[minIdx].labeled = true;
     var colors = bars.map(function (b) { return b.y >= 0 ? "rgba(63,185,80,0.8)" : "rgba(248,81,73,0.8)"; });
     var barsDataset = {
       label: DEFINITIONS.forecast_error.label, __defKey: "forecast_error", __unit: "%",
       data: bars, backgroundColor: colors, borderColor: "rgba(140,140,150,0.9)", borderWidth: 0,
       barThickness: 4,
-      __enrichment: function (idx) { return bars[idx].capped ? ["(capped on the chart; true reading shown above)"] : null; }
+      __enrichment: function (idx) {
+        if (bars[idx].labeled) return ["(largest " + (bars[idx].trueVal >= 0 ? "positive" : "negative") + " reading; true value shown above)"];
+        if (bars[idx].capped) return ["(capped on the chart; true reading shown here)"];
+        return null;
+      }
     };
 
     var ctx = document.getElementById("canvasForecastError").getContext("2d");
@@ -1632,7 +1648,7 @@ table.src-table tbody tr:hover { background: var(--panel); }
     charts.forecast_error_strip = new Chart(ctx, {
       type: "bar",
       data: { datasets: [barsDataset] },
-      plugins: [capLabelPlugin, zeroLinePlugin, crosshairPlugin],
+      plugins: [extremeLabelPlugin, zeroLinePlugin, crosshairPlugin],
       options: {
         responsive: true, maintainAspectRatio: false, animation: false,
         interaction: { mode: "nearest", intersect: true },
