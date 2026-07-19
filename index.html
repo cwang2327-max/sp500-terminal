@@ -538,7 +538,7 @@ table.src-table tbody tr:hover { background: var(--panel); }
              sigma1: "#6e7781", sigma2: "rgba(110,119,129,0.55)",
              grid: "rgba(60,60,70,0.14)", text: "#57606a", halo: "#ffffff" }
   };
-  var COLORS = PALETTES.dark;
+  var COLORS = PALETTES.light;
 
   function chartInk() { return { grid: COLORS.grid, text: COLORS.text }; }
 
@@ -839,7 +839,7 @@ table.src-table tbody tr:hover { background: var(--panel); }
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(p)); } catch (e) {}
   }
   var prefs = Object.assign({
-    view: "overview", mode: "valuation", range: "3Y", theme: "dark",
+    view: "overview", mode: "valuation", range: "3Y", theme: "light",
     toggles: { mean: true, band: true, fwdavg: false, events: true, matched: false, log: false, qbars: true },
     howtoOpen: {}  // per-view "how to read this view" panel state; undefined per-view = expanded (first visit)
   }, loadPrefs());
