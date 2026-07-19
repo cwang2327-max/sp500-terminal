@@ -788,7 +788,12 @@ table.src-table tbody tr:hover { background: var(--panel); }
           if (Math.abs(y - placed[j]) < 12) { y = placed[j] + 12; j = -1; }
         }
         placed.push(y);
-        var unit = d.__unit || "x";
+        // d.__unit || "x" would treat an explicitly-set "" (no unit) as falsy and
+        // wrongly fall back to "x" -- Return attribution's indexed-level series set
+        // __unit: "" for exactly that reason (rebased levels, not multiples) and were
+        // getting a spurious "x" suffix on their right-edge labels. Match
+        // fmtSeriesVal()'s existing (correct) undefined check instead.
+        var unit = d.__unit === undefined ? "x" : d.__unit;
         var txt = (d.__endLabel === "auto") ? (Math.round(last.y * 10) / 10).toFixed(1) + unit : d.__endLabel;
         g.lineWidth = 4; g.strokeStyle = COLORS.halo;
         g.strokeText(txt, c.chartArea.right + 6, y);
