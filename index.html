@@ -63,15 +63,13 @@ footer .rule { color: var(--muted); margin-top: 4px; }
   padding: 5px 12px; cursor: pointer; font-size: 12px;
 }
 .theme-btn:hover { border-color: var(--border2); }
-/* FACTCHECK_SPEC.md: toggle button (left of the theme button), legend line,
-   and the two mark styles. Underline colors are palette constants only:
-   reported = the green series constant (the same runtime-set custom property
-   the copy-color words use), computed = the muted gray text constant -- no
-   new hex values. (This comment ships inside the style block, which the
-   abbreviation gate scans -- keep banned tokens out of it.) */
-.fc-btn { right: 120px; }
-.fc-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
-#fcLegend { display: none; padding: 8px 22px 0; font-size: 12px; color: var(--muted); }
+/* FACTCHECK_SPEC.md (v2, always-on): legend line + the two mark styles.
+   Underline colors are palette constants only: reported = the green series
+   constant (the same runtime-set custom property the copy-color words use),
+   computed = the muted gray text constant -- no new hex values. (This comment
+   ships inside the style block, which the abbreviation gate scans -- keep
+   banned tokens out of it.) */
+#fcLegend { padding: 8px 22px 0; font-size: 12px; color: var(--muted); }
 .fc-mark { cursor: pointer; }
 .fc-reported { text-decoration: underline solid var(--copy-fwd) 2px; text-underline-offset: 3px; }
 .fc-computed { text-decoration: underline dotted var(--muted) 2px; text-underline-offset: 3px; }
@@ -287,7 +285,6 @@ table.src-table tbody tr:hover { background: var(--panel); }
 <header>
   <h1>S&amp;P 500 EPS &amp; Valuation Terminal v2</h1>
   <div class="subtitle" id="dataAsOf"></div>
-  <button id="factcheckBtn" class="theme-btn fc-btn" type="button">Fact-check</button>
   <button id="themeBtn" class="theme-btn" type="button">Light mode</button>
 </header>
 <div id="fcLegend">Solid underline: printed in the FactSet report -- click for the page. Dotted underline: computed by this terminal -- click for the formula.</div>
@@ -636,15 +633,16 @@ table.src-table tbody tr:hover { background: var(--panel); }
   // (larger, heavier, tabular figures, accent color). Only true quantities are
   // wrapped -- dates in an answer line stay plain bold context. fmtSigma and
   // fmtMovePct feed answer lines exclusively, so they wrap their own numbers.
-  // FACTCHECK_SPEC.md: the optional prov argument carries the figure's
-  // provenance -- "r:<vintage field>" (reported in the FactSet report, page
-  // from RAW.provenance_latest), "c:<def key>[+<def key>]" (computed; formula
-  // strings come from the definitions dictionary, never restated), or
-  // "x:<def key>" (reported by a non-FactSet source; source line from the
-  // dictionary). With the toggle off (the default), output is byte-identical
-  // to the pre-fact-check markup (G-FC-3).
+  // FACTCHECK_SPEC.md (v2, always-on): the optional prov argument carries the
+  // figure's provenance -- "r:<vintage field>" (reported in the FactSet
+  // report, page from RAW.provenance_latest), "c:<def key>[+<def key>]"
+  // (computed; formula strings come from the definitions dictionary, never
+  // restated), or "x:<def key>" (reported by a non-FactSet source; source line
+  // from the dictionary). The provenance layer is always on -- a figure with
+  // no prov code still renders as a plain stat-num (readability markup
+  // preserved, G-FC-3).
   function sv(t, prov) {
-    if (!prefs.factcheck || !prov) return '<span class="stat-num">' + t + "</span>";
+    if (!prov) return '<span class="stat-num">' + t + "</span>";
     var cls = prov.charAt(0) === "c" ? "fc-computed" : "fc-reported";
     return '<span class="stat-num fc-mark ' + cls + '" data-fc="' + prov + '" tabindex="0">' + t + "</span>";
   }
@@ -937,7 +935,6 @@ table.src-table tbody tr:hover { background: var(--panel); }
   }
   var prefs = Object.assign({
     view: "overview", mode: "valuation", range: "3Y", theme: "light",
-    factcheck: false,  // FACTCHECK_SPEC.md: provenance marks, default OFF
     toggles: { mean: true, band: true, fwdavg: false, events: true, matched: false, log: false, qbars: true },
     howtoOpen: {}  // per-view "how to read this view" panel state; undefined per-view = expanded (first visit)
   }, loadPrefs());
@@ -2800,26 +2797,6 @@ table.src-table tbody tr:hover { background: var(--panel); }
     renderCurrentView();
   });
   applyTheme();
-
-  // FACTCHECK_SPEC.md: toggle button + one-line legend. Toggling re-renders
-  // the current view, so every answer-line mark appears/disappears in place;
-  // with the toggle off the rendered markup is byte-identical to the
-  // pre-fact-check output (G-FC-3).
-  function applyFactcheck() {
-    var b = document.getElementById("factcheckBtn");
-    if (b) b.classList.toggle("active", !!prefs.factcheck);
-    // "block" explicitly: the stylesheet default for #fcLegend is display:none,
-    // so an empty-string reset would fall back to hidden even when toggled on.
-    var legend = document.getElementById("fcLegend");
-    if (legend) legend.style.display = prefs.factcheck ? "block" : "none";
-  }
-  var factcheckBtn = document.getElementById("factcheckBtn");
-  if (factcheckBtn) factcheckBtn.addEventListener("click", function () {
-    prefs.factcheck = !prefs.factcheck;
-    savePrefs(prefs); applyFactcheck(); hidePopover();
-    renderCurrentView();
-  });
-  applyFactcheck();
 })();
 </script>
 </body>
