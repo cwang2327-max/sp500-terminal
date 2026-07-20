@@ -323,15 +323,13 @@ table.src-table tbody tr:hover { background: var(--panel); }
 <div id="view-overview" style="display:none">
   <div class="overview-section">
     <h2>What this is</h2>
-    <p>The S&amp;P 500 is a basket of roughly 500 of the largest publicly traded companies in the
-    United States, and its price level is simply the product of two things: how much money those
-    companies earn, and how much investors are willing to pay for each dollar of those earnings (a
-    ratio called the price-to-earnings multiple, or P/E). This terminal tracks both parts separately,
-    using what the market <em>expected</em> at each moment in history -- not just what actually
-    happened later -- so that expectations can be compared against what was eventually delivered.
-    Prices move when either piece changes: earnings can grow or shrink, and the multiple investors
-    are willing to pay can expand or contract, often for reasons that have little to do with the
-    earnings themselves. Keeping the two apart is the whole point of this tool.</p>
+    <p>The S&amp;P 500's price reflects two forces: how much its companies earn, and the multiple
+    investors are willing to pay for those earnings. This terminal separates the two and tracks each
+    over the past decade, built on earnings expectations from FactSet, index prices and Treasury
+    yields from FRED, and dividend data from Robert Shiller. What sets it apart is memory — it
+    retains what the market expected at each point in history, so forecasts can be measured against
+    what companies actually delivered rather than judged only in hindsight. Every figure traces back
+    to one of those named sources.</p>
   </div>
   <div class="overview-section">
     <h2>The data</h2>
@@ -349,18 +347,15 @@ table.src-table tbody tr:hover { background: var(--panel); }
   </div>
   <div class="overview-section">
     <h2>Honest limits</h2>
-    <p>Everything on this terminal labeled "expected" or "priced at each date" reflects what the
-    market believed at the time -- not what turned out to be true; the Forecast accuracy view is the
-    one place that scores the gap between the two. Data is captured roughly monthly (weekly in some
-    stretches), so this terminal cannot see what happened between two snapshots -- a sharp move and
-    reversal within a single month would be invisible here. Finally, because many of the return
-    windows on this terminal overlap (a 2020 one-year return and a 2021 one-year return share nine
-    months of the same market), the number of data points shown is not the number of independent
-    observations -- a decade of monthly snapshots behaves more like a handful of truly separate
-    market episodes, not dozens. One more limit worth naming: every expectation on this terminal is
-    FactSet's bottom-up analyst consensus, not "the market" itself. Analysts revise their estimates
-    with a lag, so at fast turning points (March 2020, 2022) the forward multiple partly reflects
-    slow-to-update estimates rather than a pure read on investor sentiment.</p>
+    <p>What this cannot tell you: The record spans a single decade. The price, valuation, and
+    expectation series all begin around 2016 or 2017, so any long-horizon comparison falls within one
+    interest-rate regime and rests on very few truly independent periods. Forward estimates are
+    consensus, not fact: they capture what analysts believed at the time, and consensus lags at
+    turning points and is often wrong. The snapshots are periodic, taken weekly to monthly, so a move
+    that rises and reverses between two of them leaves no trace. Long horizons are the thinnest of
+    all — a return spanning N years requires N years of subsequent history, so the longer the
+    horizon, the fewer and more overlapping the observations. Roughly three years is the most this
+    decade of data can support.</p>
   </div>
 </div>
 
